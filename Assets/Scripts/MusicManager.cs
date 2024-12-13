@@ -17,11 +17,6 @@ public class MusicManager : Singleton<MusicManager> {
         gameManager.OnGameFinish += ChangeMusic;
     }
 
-    private void OnDisable() {
-        gameManager.OnGameStart -= ChangeMusic;
-        gameManager.OnGameFinish -= ChangeMusic;
-    }
-
     private void ChangeMusic(int obj) {
         if (source.clip == menuClip) {
             source.Stop();

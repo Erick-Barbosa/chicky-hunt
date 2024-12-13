@@ -16,7 +16,6 @@ public class InteractableObject : MonoBehaviour {
     }
 
     public void Interact(Vector3 mousePos) {
-        Debug.Log($"Interagiu com {gameObject.name}!");
         particleInstance = Instantiate(_particleSystem, new Vector3(mousePos.x, mousePos.y, transform.position.z - 1), Quaternion.identity);
 
         float duration = particleInstance.main.duration + particleInstance.main.startLifetime.constant;

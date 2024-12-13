@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,15 +16,13 @@ public class ChickyManager : MonoBehaviour {
 
     private float timeBetweenSpawns;
 
-#nullable enable
-    [SerializeField] private GameManager? gameManager;
-
     [SerializeField] private Counter counter;
+    [SerializeField] private PauseMenuManager menuManager;
 
     List<GameObject> chickiesObjects = new List<GameObject>();
 
     private bool hasStarted;
-    private bool hasGameOver;
+    public bool IsPaused { get; private set; }
 
     private int chickiesAmount;
 
@@ -32,30 +31,18 @@ public class ChickyManager : MonoBehaviour {
     private float maxXPosition;
 
     [SerializeField] private int testDifficulty = 0;
-    [SerializeField] private int testSceneToLoad = 0;
-
-    private void OnEnable() {
-        if (gameManager != null) {
-            gameManager.OnGameStart += InitiateSpawner;
-        }
-    }
-
-    private void OnDisable() {
-        if (gameManager != null) {
-            gameManager.OnGameStart -= InitiateSpawner;
-        }
-    }
+    [SerializeField] private bool isOnTest;
 
     private void Awake() {
-        GameObject? gameManagerObject = GameObject.Find("GameManager");
-        gameManager = gameManagerObject?.GetComponent<GameManager>();
         counter = GameObject.Find("Counter").GetComponent<Counter>();
 
         if (counter == null) {
             throw new NullReferenceException("Counter has not been assigned in the Inspector.");
         }
 
-        if (!gameManager) {
+        if (!isOnTest) {
+            InitiateSpawner(GameManager.Instance.DifficultyNumber);
+        } else {
             InitiateSpawner(testDifficulty);
         }
     }
@@ -81,13 +68,9 @@ public class ChickyManager : MonoBehaviour {
     }
 
     private void InitiateSpawner(int difficulty) {
-        hasGameOver = false;
         timeBetweenSpawns = Mathf.Max(0.2f, timeBetweenSpawnsBase / (float)difficulty);
 
         StartCoroutine(SpawnChicky());
-    }
-    private void StopSpawner(int number) {
-        StopAllCoroutines();
     }
 
     private IEnumerator SpawnChicky() {
@@ -96,17 +79,10 @@ public class ChickyManager : MonoBehaviour {
             hasStarted = true;
         }
 
-        while (!hasGameOver) {
+        while (true) {
             if (chickiesAmount >= 5) {
-                hasGameOver = true;
-                if (gameManager != null) {
-                    gameManager.HasGameOver(counter.GetPoints());
-                }
-                else {
-                    SceneManager.LoadScene(testSceneToLoad);
-                }
                 ResetChickies();
-                StopSpawner(0);
+                FinishMatch();
                 yield break;
             }
 
@@ -135,14 +111,25 @@ public class ChickyManager : MonoBehaviour {
 
     private void ResetChickies() {
         hasStarted = false;
-        hasGameOver = true;
 
         foreach (var chicky in chickiesObjects) {
             Destroy(chicky.gameObject);
         }
 
         chickiesAmount = 0;
+    }
 
-        counter.ResetPoints();
+    public void FinishMatch() {
+        if (isOnTest) {
+            menuManager.ShowPauseMenu();
+            return;
+        }
+
+        if (GameManager.Instance.autoRestart) {
+            SceneManager.LoadScene(0);
+        }
+        else {
+            menuManager.ShowPauseMenu();
+        }
     }
 }
