@@ -1,36 +1,33 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour {
+public class GameManager : Singleton<GameManager> {
     [SerializeField] private List<Button> buttons = new List<Button>();
     [SerializeField] private List<GameObject> thingsToHideOnMenu;
     [SerializeField] private List<GameObject> menuItems;
-    [SerializeField] private ChickyManager chickyManager;
 
     public event Action<int> OnGameStart;
+    public event Action<int> OnGameFinish;
 
-    private void OnEnable() {
-        chickyManager.OnGameFinish += EndGame;
-    }
-    private void OnDisable() {
-        chickyManager.OnGameFinish -= EndGame;
-    }
+    static public int Difficulty {  get; private set; }
 
     private void Start() {
-        ShowMenu(true);
+        //ShowMenu(true);
     }
 
     public void StartGame(int difficulty) {
+        SceneManager.LoadScene(0);
+        Difficulty = difficulty;
         OnGameStart?.Invoke(difficulty);
-
-        ShowMenu(false);
+        //ShowMenu(false);
     }
-
-    public void EndGame(int score) {
-        ShowMenu(true);
+    public void HasGameOver(int points) {
+        OnGameFinish?.Invoke(points);
+        SceneManager.LoadScene(1);
+        //ShowMenu(false);
     }
 
     private void ChangeIsActive(List<GameObject> children, bool state) {

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ChickyManager : MonoBehaviour {
     [SerializeField] private List<Transform> list = new List<Transform>();
@@ -14,7 +15,9 @@ public class ChickyManager : MonoBehaviour {
 
     private float timeBetweenSpawns;
 
-    [SerializeField] private GameManager gameManager;
+#nullable enable
+    [SerializeField] private GameManager? gameManager;
+
     [SerializeField] private Counter counter;
 
     List<GameObject> chickiesObjects = new List<GameObject>();
@@ -28,14 +31,33 @@ public class ChickyManager : MonoBehaviour {
     private float minXPosition;
     private float maxXPosition;
 
-    public event Action<int> OnGameFinish;
+    [SerializeField] private int testDifficulty = 0;
+    [SerializeField] private int testSceneToLoad = 0;
 
     private void OnEnable() {
-        gameManager.OnGameStart += InitiateSpawner;
+        if (gameManager != null) {
+            gameManager.OnGameStart += InitiateSpawner;
+        }
     }
 
     private void OnDisable() {
-        gameManager.OnGameStart -= InitiateSpawner;
+        if (gameManager != null) {
+            gameManager.OnGameStart -= InitiateSpawner;
+        }
+    }
+
+    private void Awake() {
+        GameObject? gameManagerObject = GameObject.Find("GameManager");
+        gameManager = gameManagerObject?.GetComponent<GameManager>();
+        counter = GameObject.Find("Counter").GetComponent<Counter>();
+
+        if (counter == null) {
+            throw new NullReferenceException("Counter has not been assigned in the Inspector.");
+        }
+
+        if (!gameManager) {
+            InitiateSpawner(testDifficulty);
+        }
     }
 
     private Vector3 GetRandomPos(int randomIndex) {
@@ -77,7 +99,12 @@ public class ChickyManager : MonoBehaviour {
         while (!hasGameOver) {
             if (chickiesAmount >= 5) {
                 hasGameOver = true;
-                OnGameFinish?.Invoke(counter.GetPoints());
+                if (gameManager != null) {
+                    gameManager.HasGameOver(counter.GetPoints());
+                }
+                else {
+                    SceneManager.LoadScene(testSceneToLoad);
+                }
                 ResetChickies();
                 StopSpawner(0);
                 yield break;

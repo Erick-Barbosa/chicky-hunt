@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MusicManager : MonoBehaviour {
+public class MusicManager : Singleton<MusicManager> {
     [SerializeField] private AudioSource source;
     [SerializeField] private AudioClip menuClip;
     [SerializeField] private AudioClip mainClip;
     [SerializeField] private GameManager gameManager;
-    [SerializeField] private ChickyManager chickyManager;
 
     private void Start() {
         source.clip = menuClip;
@@ -15,12 +14,12 @@ public class MusicManager : MonoBehaviour {
 
     private void OnEnable() {
         gameManager.OnGameStart += ChangeMusic;
-        chickyManager.OnGameFinish += ChangeMusic;
+        gameManager.OnGameFinish += ChangeMusic;
     }
 
     private void OnDisable() {
         gameManager.OnGameStart -= ChangeMusic;
-        chickyManager.OnGameFinish -= ChangeMusic;
+        gameManager.OnGameFinish -= ChangeMusic;
     }
 
     private void ChangeMusic(int obj) {

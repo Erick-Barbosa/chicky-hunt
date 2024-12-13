@@ -18,8 +18,10 @@ public class AimController : MonoBehaviour {
     private void Start() {
         Cursor.visible = false;
 
-        cannonTransform = cannon.transform;
-        cannonController = cannon.GetComponent<CannonController>();
+        if (cannon) {
+            cannonTransform = cannon.transform;
+            cannonController = cannon.GetComponent<CannonController>();
+        }        
     }
 
     private void Update() {
@@ -30,8 +32,9 @@ public class AimController : MonoBehaviour {
         worldMousePos = mainCamera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, mainCamera.nearClipPlane));
 
         // Atualiza a posição do objeto (apenas no eixo X)
-        cannonTransform.position = new Vector3(worldMousePos.x, cannonTransform.position.y, cannonTransform.position.z);
-
+        if (cannon) { 
+            cannonTransform.position = new Vector3(worldMousePos.x, cannonTransform.position.y, cannonTransform.position.z);
+        }
         if (Input.GetMouseButtonDown(0)) {
             HandleClick();
             OnFire?.Invoke();
@@ -54,11 +57,7 @@ public class AimController : MonoBehaviour {
 
     void HandleInteraction(GameObject obj) {
         if (obj.CompareTag("Interactable")) {
-            // Exemplo: Executa algo específico do objeto
             obj.GetComponent<InteractableObject>()?.Interact(worldMousePos);
-        }
-        else {
-            Debug.Log($"Você clicou em: {obj.name}");
         }
     }
 
