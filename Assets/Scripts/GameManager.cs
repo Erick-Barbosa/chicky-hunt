@@ -19,21 +19,15 @@ public class GameManager : Singleton<GameManager> {
 
     public int DifficultyNumber { get; private set; } = 1;
 
-    private void Start() {
-        //ShowMenu(true);
-    }
-
     public void StartGame(int difficulty) {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
         DifficultyNumber = difficulty;
         OnGameStart?.Invoke(difficulty);
-        //ShowMenu(false);
     }
     public void HasGameOver(int points) {
         SaveHighScore(points);
         OnGameFinish?.Invoke(points);
-        SceneManager.LoadScene(1);
-        //ShowMenu(false);
+        SceneManager.LoadScene(0);
     }
 
     private void ChangeIsActive(List<GameObject> children, bool state) {
@@ -56,7 +50,7 @@ public class GameManager : Singleton<GameManager> {
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
-        if (scene.buildIndex == 0) { // Substitua '1' pelo índice da sua cena de jogo no Build Settings
+        if (scene.buildIndex == 1) { 
             OnGameStart?.Invoke(DifficultyNumber);
         }
     }

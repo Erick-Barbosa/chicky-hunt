@@ -21,7 +21,6 @@ public class ChickyManager : MonoBehaviour {
     List<GameObject> chickiesObjects = new List<GameObject>();
 
     private bool hasStarted;
-    public bool IsPaused { get; private set; }
 
     private int chickiesAmount;
 
@@ -80,7 +79,6 @@ public class ChickyManager : MonoBehaviour {
 
         while (true) {
             while (menuManager.isOnMenu) {
-                Debug.Log("is On Menu");
                 yield return new WaitForSeconds(1);
             }
 
@@ -131,9 +129,10 @@ public class ChickyManager : MonoBehaviour {
 
         if (GameManager.Instance.autoRestart) {
             GameManager.Instance.SaveHighScore(counter.GetPoints());
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(1);
         }
         else {
+            menuManager.isGameFinished = true;
             menuManager.ShowPauseMenu();
         }
     }

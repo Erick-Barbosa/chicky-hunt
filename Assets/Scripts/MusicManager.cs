@@ -11,7 +11,7 @@ public class MusicManager : Singleton<MusicManager> {
     }
 
     private void ChangeMusic(Scene scene, LoadSceneMode sceneMode) {
-        if (scene.buildIndex == 0) {
+        if (scene.buildIndex == 1) {
             source.Stop();
             source.clip = mainClip;
             source.Play();

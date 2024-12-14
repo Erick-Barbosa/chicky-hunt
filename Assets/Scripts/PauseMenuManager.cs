@@ -17,6 +17,7 @@ public class PauseMenuManager : MonoBehaviour {
     private int resumeTime;
 
     public bool isOnMenu;
+    public bool isGameFinished;
 
     private void Awake() {
         HidePauseMenu(false);
@@ -32,6 +33,7 @@ public class PauseMenuManager : MonoBehaviour {
     }
 
     public void RestartGame() {
+        GameManager.Instance.SaveHighScore(counter.GetPoints());
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     public IEnumerator ResumeGame() {
@@ -66,24 +68,22 @@ public class PauseMenuManager : MonoBehaviour {
         gun.SetActive(false);
         counter.gameObject.SetActive(false);
         timeText.enabled = false;
-
-        isOnMenu = true;
     }
 
-    public void HidePauseMenu(bool shouldShowTimer) {
+    public void HidePauseMenu(bool shouldShowGun) {
         menu.SetActive(false);
         counter.gameObject.SetActive(true);
        
-        if (!shouldShowTimer) {
-            isOnMenu = false;
+        if (!shouldShowGun) {
             gun.SetActive(true);
         }
     }
 
     private void Update() {
-        if (Input.GetKeyDown(KeyCode.Escape)) {
+        if (Input.GetKeyDown(KeyCode.Escape) && !isGameFinished) {
             if (!isOnMenu) {
                 ShowPauseMenu();
+                isOnMenu = true;
             }
             else {
                 timeText.enabled = true;
