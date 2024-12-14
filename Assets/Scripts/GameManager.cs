@@ -82,20 +82,35 @@ public class GameManager : Singleton<GameManager> {
     }
 
     public void SaveHighScore(int points) {
-        if (points > PlayerHighScore) {
-            Score data = new Score(points, DifficultyNumber);
+        string difficulty = GetDifficultyString(DifficultyNumber);
+        string directoryPath = Path.Combine(Application.persistentDataPath, difficulty);
+        string filePath = Path.Combine(directoryPath, "savefile.json");
 
-            string directoryPath = Path.Combine(Application.persistentDataPath, data.difficulty);
-            string filePath = Path.Combine(directoryPath, "savefile.json");
+        int currentHighScore = 0;
 
-            // Garante que o diretório existe
+        if (File.Exists(filePath)) {
+            try {
+                string json = File.ReadAllText(filePath);
+                Score data = JsonUtility.FromJson<Score>(json);
+                if (data != null) {
+                    currentHighScore = data.value;
+                }
+            }
+            catch (Exception ex) {
+                Debug.LogError($"Erro ao carregar high score: {ex.Message}");
+            }
+        }
+
+        if (points > currentHighScore) {
+            Score newHighScore = new Score(points, DifficultyNumber);
+
             Directory.CreateDirectory(directoryPath);
 
-            // Serializa e salva os dados
-            string json = JsonUtility.ToJson(data);
+            string json = JsonUtility.ToJson(newHighScore);
             File.WriteAllText(filePath, json);
         }
     }
+
 
     public string LoadHighScore(string difficultyLevel) {
         string directoryPath = Path.Combine(Application.persistentDataPath, difficultyLevel);

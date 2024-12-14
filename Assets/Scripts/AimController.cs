@@ -1,14 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 public class AimController : MonoBehaviour {
     [SerializeField] private GameObject cannon;
     private Transform cannonTransform;
     private CannonController cannonController;
+    [SerializeField] private PauseMenuManager menuManager;
     public Camera mainCamera; // A câmera principal, arraste-a no Inspector
 
     public event Action OnFire;
@@ -32,12 +29,14 @@ public class AimController : MonoBehaviour {
         worldMousePos = mainCamera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, mainCamera.nearClipPlane));
 
         // Atualiza a posição do objeto (apenas no eixo X)
-        if (cannon) { 
-            cannonTransform.position = new Vector3(worldMousePos.x, cannonTransform.position.y, cannonTransform.position.z);
-        }
-        if (Input.GetMouseButtonDown(0)) {
-            HandleClick();
-            OnFire?.Invoke();
+        if (menuManager && !menuManager.isOnMenu) {
+            if (cannon) {
+                cannonTransform.position = new Vector3(worldMousePos.x, cannonTransform.position.y, cannonTransform.position.z);
+            }
+            if (Input.GetMouseButtonDown(0)) {
+                HandleClick();
+                OnFire?.Invoke();
+            }
         }
     }
 

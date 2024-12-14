@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -80,6 +79,11 @@ public class ChickyManager : MonoBehaviour {
         }
 
         while (true) {
+            while (menuManager.isOnMenu) {
+                Debug.Log("is On Menu");
+                yield return new WaitForSeconds(1);
+            }
+
             if (chickiesAmount >= 5) {
                 ResetChickies();
                 FinishMatch();
@@ -126,6 +130,7 @@ public class ChickyManager : MonoBehaviour {
         }
 
         if (GameManager.Instance.autoRestart) {
+            GameManager.Instance.SaveHighScore(counter.GetPoints());
             SceneManager.LoadScene(0);
         }
         else {
